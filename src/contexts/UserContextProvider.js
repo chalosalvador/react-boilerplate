@@ -5,6 +5,7 @@ import React from 'react';
 import Auth from '../services/auth';
 import authReducer from "../reducers/auth";
 import {LOGIN_ACTION, LOGOUT_ACTION} from "../constants/actions";
+import API from "../services";
 
 const user = {};
 export const UserContext = React.createContext();
@@ -16,12 +17,18 @@ const UserContextProvider = props => {
    * @param auth
    */
   const dispatchAuthAction = (auth) => {
-    if (auth !== null) {
+    if (!!auth) {
+      API.defaults.headers.common['Authorization'] = 'Bearer ' + auth.token; // TODO is it the best place to set this?
+      document.title = 'logged in';
+
       dispatch({
         type: LOGIN_ACTION,
         payload: auth
       });
     } else {
+      API.defaults.headers.common['Authorization'] = null; // TODO is it the best place to set this?
+      document.title = 'logged out';
+
       dispatch({
         type: LOGOUT_ACTION,
         payload: null
@@ -47,10 +54,9 @@ const UserContextProvider = props => {
   const [auth, dispatch] = React.useReducer(authReducer, user);
   React.useEffect(() => {
     const checkAuthentication = () => {
-      const isAuth = Auth.checkAuthentication();
-      dispatchAuthAction(isAuth);
-
-      document.title = isAuth ? 'logged in' : 'logged out';
+      const auth = Auth.checkAuthentication();
+      console.log('isAuth', auth);
+      dispatchAuthAction(auth);
     };
 
     checkAuthentication();
@@ -66,10 +72,7 @@ const UserContextProvider = props => {
     try {
       const response = await Auth.login(email, password);
       console.log('token', response);
-      dispatch({
-        type: 'loginUser',
-        payload: response
-      });
+      dispatchAuthAction(response);
     } catch (e) {
       alert(e.message);
     }
@@ -82,10 +85,7 @@ const UserContextProvider = props => {
   const logout = async () => {
     Auth.logout();
 
-    dispatch({
-      type: 'logoutUser',
-      payload: null
-    });
+    dispatchAuthAction(null);
   };
 
   return (

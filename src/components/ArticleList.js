@@ -32,6 +32,7 @@ const ArticleList = () => {
       const response = await Article.get(id);
       setArticleDetails(response);
     } catch (e) {
+      console.log('error', e.message);
       alert(e.message);
     }
   };
