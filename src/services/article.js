@@ -1,15 +1,17 @@
-import APIRequest from "./index";
+import API from "./index";
 
 /**
  * Created by chalosalvador on 2/5/20
  */
 
 const getAll = async () => {
-  return APIRequest.handleRequest('/api/articles', 'GET');
+  const response =  await API.get('/api/articles');
+  return response.data;
 };
 
 const get = async (id) => {
-  return APIRequest.handleRequest(`/api/articles/${id}`, 'GET');
+  const response = await API.get(`/api/articles/${id}`);
+  return response.data;
 };
 
 
